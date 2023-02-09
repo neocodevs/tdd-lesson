@@ -12,4 +12,50 @@
   It must return the position in the array where the first argument value is stored
   It must return -1 if the value is not inside the array
 */
-export {};
+export const getIndexInArray = (
+  value: number,
+  array: number[],
+  offset = 0
+): number => {
+  let result = getContainingSideAndOffset(value, array);
+
+  if (result.found) {
+    return offset + result.position;
+  }
+
+  if (
+    result.splittedArray?.length === 1 &&
+    result.splittedArray[0] !== value &&
+    !result.found
+  ) {
+    return -1;
+  }
+
+  return getIndexInArray(
+    value,
+    result.splittedArray as number[],
+    offset + (result.offset as number)
+  );
+};
+
+export const splitArray = (list: number[]) => {
+  const half = Math.ceil(list.length / 2);
+
+  const leftSide = list.slice(0, half);
+  const rightSide = list.slice(half);
+
+  return { leftSide, rightSide };
+};
+
+export const getContainingSideAndOffset = (value: number, array: number[]) => {
+  const { leftSide, rightSide } = splitArray(array);
+
+  const valueIsInLeftSide = value <= leftSide[leftSide.length - 1];
+  const valueIsFound = value === leftSide[leftSide.length - 1];
+
+  if (valueIsFound) return { found: true, position: leftSide.length - 1 };
+
+  return valueIsInLeftSide
+    ? { splittedArray: leftSide, offset: 0 }
+    : { splittedArray: rightSide, offset: leftSide.length };
+};
