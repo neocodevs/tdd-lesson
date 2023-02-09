@@ -12,50 +12,52 @@
   It must return the position in the array where the first argument value is stored
   It must return -1 if the value is not inside the array
 */
-export const getIndexInArray = (
+
+export const splitList = (list: number[]) => {
+  const needle = Math.ceil(list.length / 2);
+
+  const leftSide = list.slice(0, needle);
+  const rightSide = list.slice(needle);
+
+  return { leftSide, rightSide };
+};
+
+export const getContainingSideAndOffset = (value: number, list: number[]) => {
+  const { leftSide, rightSide } = splitList(list);
+
+  const isValueFoundInLeftSide = value === leftSide[leftSide.length - 1];
+  const valueIsInLeftSide = value <= leftSide[leftSide.length - 1];
+
+  if (isValueFoundInLeftSide)
+    return { found: true, position: leftSide.length - 1 };
+
+  return valueIsInLeftSide
+    ? { splittedList: leftSide, offset: 0 }
+    : { splittedList: rightSide, offset: leftSide.length };
+};
+
+export const getIndexInList = (
   value: number,
-  array: number[],
+  list: number[],
   offset = 0
 ): number => {
-  let result = getContainingSideAndOffset(value, array);
+  let result = getContainingSideAndOffset(value, list);
 
   if (result.found) {
     return offset + result.position;
   }
 
   if (
-    result.splittedArray?.length === 1 &&
-    result.splittedArray[0] !== value &&
+    result.splittedList?.length === 1 &&
+    result.splittedList[0] !== value &&
     !result.found
   ) {
     return -1;
   }
 
-  return getIndexInArray(
+  return getIndexInList(
     value,
-    result.splittedArray as number[],
+    result.splittedList as number[],
     offset + (result.offset as number)
   );
-};
-
-export const splitArray = (list: number[]) => {
-  const half = Math.ceil(list.length / 2);
-
-  const leftSide = list.slice(0, half);
-  const rightSide = list.slice(half);
-
-  return { leftSide, rightSide };
-};
-
-export const getContainingSideAndOffset = (value: number, array: number[]) => {
-  const { leftSide, rightSide } = splitArray(array);
-
-  const valueIsInLeftSide = value <= leftSide[leftSide.length - 1];
-  const valueIsFound = value === leftSide[leftSide.length - 1];
-
-  if (valueIsFound) return { found: true, position: leftSide.length - 1 };
-
-  return valueIsInLeftSide
-    ? { splittedArray: leftSide, offset: 0 }
-    : { splittedArray: rightSide, offset: leftSide.length };
 };
